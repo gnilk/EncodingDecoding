@@ -234,6 +234,6 @@ namespace gnilk {
 
 
     } // xml namespace
-} // EWTracker namespace
+} // gnilk
 
 #endif
