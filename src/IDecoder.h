@@ -8,6 +8,7 @@
 #include "IReader.h"
 #include <optional>
 #include <memory>
+#include <string>
 
 namespace gnilk {
 
