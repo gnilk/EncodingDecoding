@@ -3,7 +3,13 @@ Currently Supports:
 * JSON (currently encoder only - not sure where the decodder is)
 * XML (encoder and decoder)
 
-Originally written for embedded, thus might look a bit strange at first. Have relaxed memory constraints a bit.
+I actually regret doing it this way - for XML it worked fine but for JSON it was hell.. It is still a long way from supporting
+proper JSON..  basic JSON is fine...
+Callback based is just so much easier/simpler than API-based. However, it requires your classes to inherit interfaces.
+Which was a dependency I wanted to avoid...
+
+JSON is problematic because of the Array's can contain mixed types in any order - when consuming them in to C++ from a an API usage we either
+limit us or each class has to implement a bunch of logic which is redundant...
 
 # Build
 Add the subdirectory to your project and link with the libraray.

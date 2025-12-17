@@ -16,6 +16,36 @@ namespace gnilk {
     public:
         using Ref = std::shared_ptr<IDecoder>;
     public:
+        class ArrayIterator {
+        public:
+            using Ref = std::shared_ptr<ArrayIterator>;
+        public:
+            ArrayIterator() = default;
+            virtual ~ArrayIterator() = default;
+
+            ArrayIterator &operator++ () { Next(); return *this; }
+            ArrayIterator operator++ (int) { ArrayIterator tmp = *this; Next(); return tmp; }
+            ArrayIterator &operator-- () { Previous(); return *this; }
+            bool operator == (const ArrayIterator::Ref &other) const { return Equals(other); }
+            bool operator != (const ArrayIterator::Ref &other) const { return !Equals(other); }
+
+        public:
+            virtual void Next() {};
+            virtual void Previous() {};
+            virtual bool Equals(const ArrayIterator::Ref &other) const { return false; };
+            virtual bool End() const { return true; }
+        public:
+            virtual bool IsArray() { return false; }
+            virtual bool IsObject() { return false; }
+
+            // Read current item as an Int...
+            virtual bool ReadBool() { return false; }
+            virtual int ReadInt() { return 0; }
+            virtual int64_t ReadInt64() { return 0; }
+            virtual float ReadFloat() { return 0.0; }
+            virtual std::string ReadText() { return {}; }
+        };
+    public:
         virtual ~IDecoder() = default;
 
         virtual void Begin(IReader::Ref in) = 0;
@@ -24,6 +54,10 @@ namespace gnilk {
         virtual bool BeginObject(const std::string &name) = 0;
         virtual void EndObject() = 0;
         virtual bool HasObject(const std::string &name) = 0;
+
+        virtual ArrayIterator::Ref BeginArray(const std::string &name) = 0;
+        virtual void EndArray() = 0;
+
 
         virtual std::optional<bool> ReadBoolField(const std::string &name) = 0;
         virtual std::optional<int> ReadIntField(const std::string &name) = 0;
@@ -45,6 +79,9 @@ namespace gnilk {
         bool BeginObject(const std::string &name) override { return false; }
         void EndObject() override {}
         bool HasObject(const std::string &name) override { return false; };
+
+        ArrayIterator::Ref BeginArray(const std::string &name) override {  return std::make_shared<ArrayIterator>(); }
+        void EndArray() override {  }
 
         std::optional<bool> ReadBoolField(const std::string &name) override { return {}; }
         std::optional<int> ReadIntField(const std::string &name) override { return {}; }
