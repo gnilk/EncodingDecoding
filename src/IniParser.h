@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <memory>
 
 #include "IReader.h"
 #include "IDecoder.h"
@@ -17,10 +18,45 @@ namespace gnilk {
 
     class IniParser {
     public:
+        struct Section {
+
+            using Ref = std::shared_ptr<Section>;
+
+            Section() = delete;
+            Section(const std::string &sName) : name(sName) {
+
+            }
+            static Ref Create(const std::string &name) {
+                return std::make_shared<Section>(name);
+            }
+
+            std::string name;
+            std::vector<std::pair<std::string, std::string>> values;
+        };
+    public:
+        using Ref = std::shared_ptr<IniParser>;
         using ValueDelegate = std::function<void(const std::string &section, const std::string &key, const std::string &value)>;
 
     public:
+        IniParser() = delete;
+        IniParser(const std::string &data);
         IniParser(IReader::Ref pStream);
+        virtual ~IniParser() = default;
+
+        static Ref Create(const std::string &data) {
+            return std::make_shared<IniParser>(data);
+        }
+        static Ref Create(IReader::Ref inStream) {
+            return std::make_shared<IniParser>(inStream);
+        }
+
+        IniParser::Section::Ref GetSection(const std::string &section) {
+            if (!sectionMap.contains(section)) {
+                return nullptr;
+            }
+            return sectionMap[section];
+        }
+
         void SetValueDelegate(ValueDelegate valueDelegate) { cbValue = valueDelegate; }
         bool ProcessData();
     private:
@@ -61,7 +97,7 @@ namespace gnilk {
             kValue,   // 6
         } kState;
 
-        std::unordered_map<std::string, std::vector<std::pair<std::string, std::string>>> sectionMap = {};
+        std::unordered_map<std::string, Section::Ref> sectionMap = {};
 
     private:
         std::string section = {};

@@ -3,9 +3,13 @@
 //
 
 #include "IniParser.h"
+#include "StringReader.h"
 
 using namespace gnilk;
 
+IniParser::IniParser(const std::string &data) {
+    inStream = StringReader::Create(data);
+}
 IniParser::IniParser(IReader::Ref stream) : inStream(stream)
 {
 
@@ -125,9 +129,10 @@ void IniParser::Commit() {
         cbValue(section, key, value);
     }
 
-    sectionMap[section].push_back({key, value});
-//    if (pCurrentObject != nullptr) {
-//        pCurrentObject->SetField(key.CharPtr(), value.CharPtr());
-//    }
+    if (!sectionMap.contains(section)) {
+        sectionMap[section] = Section::Create(section);
+    }
+    auto &s = sectionMap[section];
+    s->values.push_back({key, value});
 }
 
