@@ -11,8 +11,8 @@ using namespace gnilk;
 
 extern "C" int test_jsonencoder_simple(ITesting *t) {
 
-    FileWriter fw(stdout);
-    JSONEncoder encoder(&fw);
+    auto fw = FileWriter::Create(stdout);
+    JSONEncoder encoder(fw);
 
     encoder.PrettyPrint(true);
     encoder.BeginObject("Root");

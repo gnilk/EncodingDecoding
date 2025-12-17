@@ -24,13 +24,19 @@ namespace gnilk {
      */
     class StringWriter {
     public:
-        explicit StringWriter(IWriter *_writer) : writer(_writer) {}
-        explicit StringWriter(IWriter::Ref _writer = {});
+        using Ref = std::shared_ptr<StringWriter>;
+    public:
+        StringWriter() = default;
+        explicit StringWriter(IWriter::Ref _writer) : writer(_writer) {
 
+        }
         virtual ~StringWriter() = default;
 
+        static Ref Create(IWriter::Ref _writer) {
+            return std::make_shared<StringWriter>(_writer);
+        }
+
         void Begin(IWriter::Ref _writer);
-        IWriter *Writer();
 
         int printf(const char *format, ...) GNILK_PRINTF_ATTRIB(1);
         int println(const char *format, ...) GNILK_PRINTF_ATTRIB(1);
@@ -75,6 +81,7 @@ namespace gnilk {
         SW_OP_WRITE(uint16_t);
         SW_OP_WRITE(int32_t);
         SW_OP_WRITE(uint32_t);
+        SW_OP_WRITE(int64_t);
         SW_OP_WRITE(uint64_t);
 #undef SW_OP_WRITE
 
@@ -94,7 +101,7 @@ namespace gnilk {
         int DoPrint(int flags, const char *format, va_list &values);
 
     private:
-        IWriter* writer;
+        IWriter::Ref writer;
     };
 }
 

@@ -22,16 +22,8 @@ const std::string gnilk::StringWriter::eos = std::string("\0");
 
 
 
-StringWriter::StringWriter(IWriter::Ref _writer) : writer(_writer.get()) {
-
-}
-
 void StringWriter::Begin(IWriter::Ref _writer) {
-    this->writer = _writer.get();
-}
-
-IWriter *StringWriter::Writer() {
-    return writer;
+    writer = _writer;
 }
 
 int StringWriter::DoPrint(int flags, const char *format, va_list &values) {

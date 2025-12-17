@@ -23,8 +23,6 @@ static const std::string jsonempty("");
 JSONEncoder::JSONEncoder(IWriter::Ref outStream) : ss(outStream), fieldCount(0) {
 
 }
-JSONEncoder::JSONEncoder(IWriter *outStream) : ss(outStream), fieldCount(0) {
-}
 
 void JSONEncoder::PrettyPrint(bool use) {
     pretty = use;

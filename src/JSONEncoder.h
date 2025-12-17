@@ -15,7 +15,6 @@ namespace gnilk {
     public:
         JSONEncoder() = default;
         explicit JSONEncoder(IWriter::Ref outStream);
-        explicit JSONEncoder(IWriter *outStream);
         virtual ~JSONEncoder() = default;
 
         void PrettyPrint(bool use);
