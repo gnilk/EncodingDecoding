@@ -1,4 +1,4 @@
-# Decent serialize/deserialization library
+# Marshalling library
 Currently Supports:
 * JSON (currently encoder only - not sure where the decodder is)
 * XML (encoder and decoder)
