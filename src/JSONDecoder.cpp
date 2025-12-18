@@ -37,28 +37,27 @@ void JSONDecoder::Initialize() {
     ChangeState(kState::kRegular);
 }
 
-void JSONDecoder::Unmarshal(IUnmarshal *rootObject) {
+bool JSONDecoder::Unmarshal(IUnmarshal *rootObject) {
     auto root = doc->GetRoot();
     // try fetch as JSONObject
     auto ptrJsonRootObject = std::get_if<JSONObject::Ref>(&root);
     if (ptrJsonRootObject != nullptr) {
         auto jsonObject = *ptrJsonRootObject;
-        UnmarshalObject(rootObject, jsonObject);
-        return;
+        return UnmarshalObject(rootObject, jsonObject);
     }
 
     // Wasn't a JSONObject, try as JSON array - if that fails we simply bail
     // JSON can have two root types (Object or Array)
     auto ptrJsonRootArray = std::get_if<JSONArray::Ref>(&root);
     if (ptrJsonRootArray == nullptr) {
-        return;
+        return false;
     }
     auto jsonArray = *ptrJsonRootArray;
-    UnmarshalArray(rootObject, jsonArray);
+    return UnmarshalArray(rootObject, jsonArray);
 }
 
-void JSONDecoder::UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &jsonObject) {
-    if (pObject == nullptr) return;
+bool JSONDecoder::UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &jsonObject) {
+    if (pObject == nullptr) return false;
 
     for(auto &[name, value] : jsonObject->GetValues()) {
         if (value->IsString()) {
@@ -68,15 +67,16 @@ void JSONDecoder::UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &js
             // we have an object - try to fetch the unmarshal for that object
             auto newUnmarshal = pObject->GetUnmarshalForField(name);
             if (newUnmarshal != nullptr) {
-                UnmarshalObject(newUnmarshal, value->GetAsObject());
+                return UnmarshalObject(newUnmarshal, value->GetAsObject());
             }
         } else if (value->IsArray()) {
-            UnmarshalArray(pObject, value->GetAsArray());
+            return UnmarshalArray(pObject, value->GetAsArray());
         }
     }
+    return true;
 }
 
-void JSONDecoder::UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &jsonArray) {
+bool JSONDecoder::UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &jsonArray) {
     for(auto &item : jsonArray->GetValues()) {
         if (item->IsString()) {
             pObject->SetField(jsonArray->GetName(), item->GetAsString());
@@ -84,18 +84,23 @@ void JSONDecoder::UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &json
             // Note: we simply don't have the object name here - instead we just assume the consumer knows about it...
             auto newUnmarshal = pObject->GetUnmarshalForField(jsonArray->GetName());
             if (newUnmarshal != nullptr) {
-                UnmarshalObject(newUnmarshal, item->GetAsObject());
-                pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                // Note: We don't return here as we are in a loop
+                if (UnmarshalObject(newUnmarshal, item->GetAsObject())) {
+                    pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                }
             }
         } else if (item->IsArray()) {
             // Note: We simply don't have an idea of the array name - instead we just assume the consumer knows abou it...
             auto newUnmarshal = pObject->GetUnmarshalForField(jsonArray->GetName());
             if (newUnmarshal) {
-                UnmarshalArray(newUnmarshal, item->GetAsArray());
-                pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                // Note: We don't return here as we are in a loop
+                if (UnmarshalArray(newUnmarshal, item->GetAsArray())) {
+                    pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                }
             }
         }
     }
+    return true;
 }
 
 

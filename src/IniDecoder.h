@@ -23,7 +23,8 @@ namespace gnilk {
         explicit IniDecoder(const std::string &data);
         virtual ~IniDecoder() = default;
 
-        void Unmarshal(IUnmarshal *rootObject);
+        bool Unmarshal(IUnmarshal *rootObject) override;
+
 
         void Begin(IReader::Ref incoming) override;
         void Begin(const std::string &data);

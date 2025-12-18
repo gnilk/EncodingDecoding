@@ -5,12 +5,20 @@
 #ifndef GNILK_IDECODER_H
 #define GNILK_IDECODER_H
 
-#include "IReader.h"
 #include <optional>
 #include <memory>
 #include <string>
+#include "IReader.h"
+#include "IUnmarshal.h"
 
 namespace gnilk {
+
+    class IUnmarshaller {
+    public:
+        virtual ~IUnmarshaller() = default;
+        virtual bool Unmarshal(IUnmarshal *root) = 0;
+    };
+
 
     class IDecoder {
     public:
@@ -67,10 +75,13 @@ namespace gnilk {
 
     };
 
-    class BaseDecoder : public IDecoder {
+    class BaseDecoder : public IDecoder, public IUnmarshaller {
     public:
         BaseDecoder() = default;
         virtual ~BaseDecoder() = default;
+
+
+        bool Unmarshal(IUnmarshal *rootObject) override { return false; }
 
         void Begin(IReader::Ref incoming) override {
             reader = incoming;

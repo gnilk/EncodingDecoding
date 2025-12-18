@@ -124,7 +124,7 @@ namespace gnilk {
             return (doc != nullptr);
         }
 
-        void Unmarshal(IUnmarshal *rootObject);
+        bool Unmarshal(IUnmarshal *rootObject) override;
 
         bool BeginObject(const std::string &name) override;
 
@@ -142,8 +142,8 @@ namespace gnilk {
     protected:
         bool BeginObject(const JSONArrayIterator::Ref &it);
         ArrayIterator::Ref BeginArray(const JSONArrayIterator::Ref &it);
-        void UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &jsonObject);
-        void UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &jsonObject);
+        bool UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &jsonObject);
+        bool UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &jsonObject);
 
     protected:
         enum class kState {
