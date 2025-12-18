@@ -103,6 +103,13 @@ namespace gnilk {
         size_t Size() const {
             return values.size();
         }
+        const std::vector<JSONValueRef> &GetValues() const {
+            return values;
+        }
+
+        const std::string &GetName() const {
+            return name;
+        }
 
         const JSONValueRef At(size_t idx) const {
             if (idx >= values.size()) {

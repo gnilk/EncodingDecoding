@@ -6,6 +6,7 @@
 #define GNILK_JSONDECODER_H
 
 #include "IDecoder.h"
+#include "IUnmarshal.h"
 #include "JSONParser.h"
 #include "DecoderHelpers.h"
 
@@ -112,11 +113,18 @@ namespace gnilk {
     };
     public:
         JSONDecoder() = default;
+        explicit JSONDecoder(IReader::Ref incoming);
+        explicit JSONDecoder(const std::string &jsondata);
         virtual ~JSONDecoder() = default;
 
         void Begin(IReader::Ref incoming) override;
         void Begin(const std::string &jsondata);
 
+        bool IsValid() {
+            return (doc != nullptr);
+        }
+
+        void Unmarshal(IUnmarshal *rootObject);
 
         bool BeginObject(const std::string &name) override;
 
@@ -134,6 +142,8 @@ namespace gnilk {
     protected:
         bool BeginObject(const JSONArrayIterator::Ref &it);
         ArrayIterator::Ref BeginArray(const JSONArrayIterator::Ref &it);
+        void UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &jsonObject);
+        void UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &jsonObject);
 
     protected:
         enum class kState {
