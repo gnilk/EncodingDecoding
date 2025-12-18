@@ -93,6 +93,7 @@ namespace gnilk {
             kSectionStart,   // 2
             kSectionName,         // 3
             kKey,  // 4
+            kKeyOrSectionStart,  // 4
             kSeparator,    // 5
             kValue,   // 6
         } kState;

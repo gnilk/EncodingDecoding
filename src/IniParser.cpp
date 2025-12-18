@@ -52,10 +52,7 @@ bool IniParser::ProcessData() {
                     ResetValue();
                     ResetKey();
                 } else {
-                    if (!PushToSection(next)) {
-                        // printf("Token: '%s' too long!\n", section.CharPtr());
-                        goto leave;
-                    }
+                    PushToSection(next);
                 }
                 break;
 
@@ -81,9 +78,7 @@ bool IniParser::ProcessData() {
                     // printf("key: '%s'\n", key.CharPtr());
                     state = kSeparator;
                 } else {
-                    if (!PushToKey(next)) {
-                        goto leave;
-                    }
+                    PushToKey(next);
                 }
                 break;
             case kSeparator :
@@ -92,10 +87,22 @@ bool IniParser::ProcessData() {
                     stateAfterWhiteSpace = kValue;
                 }
                 break;
+            case kKeyOrSectionStart :
+                if (!std::isspace(next)) {
+                    if (next == '[') {
+                        state = kSectionName;
+                        ResetSection();
+                    } else {
+                        state = kKey;
+                        ResetValue();
+                        ResetKey();
+                        PushToKey(next);
+                    }
+                }
+                break;
             case kValue :
                 if (next < ' ') {
-                    state = kWhiteSpace;
-                    stateAfterWhiteSpace = kKey;
+                    state = kKeyOrSectionStart;
 
 //                    printf("Value='%s'\n", value.CharPtr());
 //                    printf("** %s.%s = '%s' **\n", section.CharPtr(), key.CharPtr(), value.CharPtr());
@@ -104,9 +111,7 @@ bool IniParser::ProcessData() {
                     ResetKey();
                     ResetValue();
                 } else {
-                    if (!PushToValue(next)) {
-                        goto leave;
-                    }
+                    PushToValue(next);
                 }
                 break;
 
