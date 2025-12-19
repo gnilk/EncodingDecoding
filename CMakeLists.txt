@@ -65,6 +65,9 @@ elseif(APPLE)
     target_compile_definitions(${PROJECT_NAME} INTERFACE -DLINUX)
     target_compile_definitions(tst_${PROJECT_NAME} INTERFACE -DLINUX)
 
+    target_include_directories(tst_${PROJECT_NAME} PUBLIC /usr/local/include)
+
+
 elseif(UNIX)
     message(STATUS "OS is Linux")
     message(STATUS "CMAKE_COMPILER_ID: ${CMAKE_CXX_COMPILER_ID}")
