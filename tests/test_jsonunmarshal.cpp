@@ -175,3 +175,45 @@ extern "C" int test_jsonunmarshal_array_trailing(ITesting *t) {
     return kTR_Pass;
 }
 
+namespace {
+    class MyObject : public BaseUnmarshal {
+    public:
+        MyObject() = default;
+        virtual ~MyObject() = default;
+    public: // BaseUnmarshal
+        bool SetField(const std::string &fieldName, const std::string &fieldValue) override {
+            if (fieldName == "field") {
+                value = *convert_to<int>(fieldValue);
+                return true;
+            }
+            return false;
+        }
+        IUnmarshal *GetUnmarshalForField(const std::string &fieldName) override {
+            if (fieldName == "Object") {
+                subObject = new MyObject();
+                return subObject;
+            }
+            return nullptr;
+        }
+
+    public:
+        int value = 0;
+        MyObject *subObject = {};
+    };
+}
+
+extern "C" int test_jsonunmarshal_object_nested(ITesting *t) {
+    std::string data = "{ \"field\" : 123, \"Object\" : { \"field\" : 345 } }";
+
+    JSONDecoder decoder(data);
+    TR_ASSERT(t, decoder.IsValid());
+    MyObject root;
+    TR_ASSERT(t, decoder.Unmarshal(&root));
+    TR_ASSERT(t, root.value == 123);
+    TR_ASSERT(t, root.subObject != nullptr);
+    TR_ASSERT(t, root.subObject->value == 345);
+    TR_ASSERT(t, root.subObject->subObject == nullptr);
+
+    return kTR_Pass;
+}
+

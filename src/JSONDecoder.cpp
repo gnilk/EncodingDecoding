@@ -67,10 +67,14 @@ bool JSONDecoder::UnmarshalObject(IUnmarshal *pObject, const JSONObject::Ref &js
             // we have an object - try to fetch the unmarshal for that object
             auto newUnmarshal = pObject->GetUnmarshalForField(name);
             if (newUnmarshal != nullptr) {
-                return UnmarshalObject(newUnmarshal, value->GetAsObject());
+                if (!UnmarshalObject(newUnmarshal, value->GetAsObject())) {
+                    return false;
+                }
             }
         } else if (value->IsArray()) {
-            return UnmarshalArray(pObject, value->GetAsArray());
+            if (!UnmarshalArray(pObject, value->GetAsArray())) {
+                return false;
+            }
         }
     }
     return true;
@@ -85,18 +89,20 @@ bool JSONDecoder::UnmarshalArray(IUnmarshal *pObject, const JSONArray::Ref &json
             auto newUnmarshal = pObject->GetUnmarshalForField(jsonArray->GetName());
             if (newUnmarshal != nullptr) {
                 // Note: We don't return here as we are in a loop
-                if (UnmarshalObject(newUnmarshal, item->GetAsObject())) {
-                    pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                if (!UnmarshalObject(newUnmarshal, item->GetAsObject())) {
+                    return false;
                 }
+                pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
             }
         } else if (item->IsArray()) {
             // Note: We simply don't have an idea of the array name - instead we just assume the consumer knows abou it...
             auto newUnmarshal = pObject->GetUnmarshalForField(jsonArray->GetName());
             if (newUnmarshal) {
                 // Note: We don't return here as we are in a loop
-                if (UnmarshalArray(newUnmarshal, item->GetAsArray())) {
-                    pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
+                if (!UnmarshalArray(newUnmarshal, item->GetAsArray())) {
+                    return false;
                 }
+                pObject->PushToArray(jsonArray->GetName(), newUnmarshal);
             }
         }
     }
