@@ -6,6 +6,7 @@
 #include "../src/XMLDecoder.h"
 #include "../src/IUnmarshal.h"
 #include "../src/DecoderHelpers.h"
+#include <cmath>
 
 using namespace gnilk;
 

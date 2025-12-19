@@ -1,6 +1,7 @@
 //
 // Created by gnilk on 18.12.2025.
 //
+#include <cmath>
 #include <testinterface.h>
 #include "../src/JSONDecoder.h"
 #include "../src/IUnmarshal.h"
