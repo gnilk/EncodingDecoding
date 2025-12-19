@@ -6,8 +6,8 @@
 
 
 //
-// FIXME: Does not handle whitespace when declaring attributes, like '<node attribute = "value" />'
-//                                                                                   ^ ^ - causing parser problems...
+// FIXME: Attribute values must close with same quotation it was started. Can't mix double/single quotes in a single declaration!
+//
 
 using namespace gnilk::xml;
 
@@ -244,6 +244,7 @@ void XMLParser::stateAttributeValueStart(int c) {
 }
 
 void XMLParser::stateAttributeValue(int c) {
+    // FIXME: This requires more elaborate parsing to be compliant (like support for &quot and escapes and stuff...)
     if ((c == '"') || (c == '\'')) {
         attrValue = token;
         tagCurrent->AddAttribute(attrName, attrValue);
