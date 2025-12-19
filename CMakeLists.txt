@@ -38,6 +38,7 @@ list(APPEND encdec_tst_src tests/test_jsonunmarshal.cpp)
 list(APPEND encdec_tst_src tests/test_stringreader.cpp)
 list(APPEND encdec_tst_src tests/test_xmldecoder.cpp)
 list(APPEND encdec_tst_src tests/test_xmlencoder.cpp)
+list(APPEND encdec_tst_src tests/test_xmlparser.cpp)
 list(APPEND encdec_tst_src tests/test_xmlunmarshalling.cpp)
 
 #add_library(${PROJECT_NAME} INTERFACE)
